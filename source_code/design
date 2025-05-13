@@ -1,20 +1,25 @@
-module emotrail(
+module alu_design(
            
            input [31:0] A,B,  // ALU 8-bit Inputs                 
-           input [4:0] ALU_Sel,// ALU Selection
-           output [31:0] ALU_Out, // ALU 8-bit Output
-           output CarryOut // Carry Out Flag
+           input [4:0] opcode,// ALU Selection
+           output [31:0] out, // ALU 8-bit Output
+           output carryout // Carry Out Flag
     );
     reg [31:0] ALU_Result;
-    wire [32:0] tmp;
-    assign ALU_Out = ALU_Result; // ALU out
-    assign tmp = {1'b0,A} + {1'b0,B};
-    assign CarryOut = tmp[32]; // Carryout flag
+    reg [32:0] tmp;
+    reg carry;
+    assign out = ALU_Result; // ALU out
+   //assign tmp = {1'b0,A} + {1'b0,B};
+    assign carryout = carry; // Carryout flag
     always @(*)
     begin
-        case(ALU_Sel)
+        case(opcode)
           5'b00000: // Addition
-           ALU_Result = A + B ; 
+                    begin 
+                           tmp = A + B;
+                          ALU_Result = tmp[31:0];
+                         carry = tmp[32];
+                    end 
           5'b00001: // Subtraction
            ALU_Result = A - B ;
           5'b00010: // Multiplication
@@ -45,17 +50,17 @@ module emotrail(
            ALU_Result = (A>B)?32'd1:32'd0 ;
           5'b01111: // Equal comparison   
             ALU_Result = (A==B)?32'd1:32'd0 ;
-			 5'b10000://Increment
-				ALU_Result = A+1;
-			 5'b10001://Decrement
-				ALU_Result = A-1;
-			 5'b10010://Logical not
-				ALU_Result= ~ A;
-			 5'b10011://Rem
-			   ALU_Result = A%B;
-			 5'B10100://Lesser comparision
-			   ALU_Result = (A<B)?32'd1:32'd0 ;
-          default: ALU_Result = A + B ; 
+    			 5'b10000://Increment
+    				ALU_Result = A+1;
+    			 5'b10001://Decrement
+    				ALU_Result = A-1;
+    			 5'b10010://Logical not
+    				ALU_Result= ~ A;
+    			 5'b10011://Rem
+    			   ALU_Result = A%B;
+    			 5'b10100://Lesser comparision
+    			   ALU_Result = (A<B)?32'd1:32'd0 ;
+          default: ALU_Result = 32'b0 ; 
         endcase
     end
 
